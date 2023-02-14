@@ -1,0 +1,32 @@
+.buttons {
+    margin: 0 auto;
+    margin-top: 23px;
+    display: flex;
+    justify-content: center;
+}
+
+button {
+    border-radius: 100%;
+    width: 35px;
+    height: 35px;
+    border: none;
+    font-size: 21px;
+    background-color: #2c2f3d;
+    color: white;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.75;
+}
+
+button:first-child {
+    margin-left: 0px;
+}
+
+.counter-value {
+    margin-top: 23px;
+    color: #2d2d2d;
+    font-size: 30px;
+}
