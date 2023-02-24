@@ -1,0 +1,52 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:4.2
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    networks:
+      - app-network
+    ports:
+      - "27017:27017"
+  parse:
+    build: .
+    environment:
+      - PARSE_SERVER_APPLICATION_ID=${APP_ID}
+      - PARSE_SERVER_MASTER_KEY=${MASTER_KEY}
+      - PARSE_SERVER_REST_API_KEY=${REST_API_KEY}
+      - PARSE_SERVER_DATABASE_URI=${DATABASE_URI}
+      - PARSE_SERVER_MOUNT_PATH=/parse
+      - PARSE_SERVER_CLOUD=/parse-cloud/cloud/main.js
+      - PARSE_SERVER_MOUNT_GRAPHQL=true
+      - PARSE_SERVER_MOUNT_PLAYGROUND=true
+    ports:
+      - "1337:1337"
+    entrypoint: ["/bin/sh", "-c", "sleep 5;  node ./bin/parse-server"] #sleep few seconds for postgres to come up
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+  parse-dashboard:
+    image: parseplatform/parse-dashboard
+    ports:
+      - '4040:4040'
+    environment:
+#      - PARSE_DASHBOARD_ALLOW_INSECURE_HTTP=true
+      - PARSE_DASHBOARD_TRUST_PROXY=1
+      - PARSE_DASHBOARD_COOKIE_SESSION_SECRET=${DASHBOARD_COOKIE_SESSION_SECRET}
+      - PARSE_DASHBOARD_SERVER_URL=${DASHBOARD_SERVER_URL}
+      - PARSE_DASHBOARD_MASTER_KEY=${MASTER_KEY}
+      - PARSE_DASHBOARD_APP_ID=${APP_ID}
+      - PARSE_DASHBOARD_APP_NAME=MyParseApp
+      - PARSE_DASHBOARD_USER_ID=${DASHBOARD_USER_ID}
+      - PARSE_DASHBOARD_USER_PASSWORD=${DASHBOARD_USER_PASSWORD}
+      - MOUNT_PATH=/dashboard/
+      - PARSE_DASHBOARD_GRAPHQL_SERVER_URL=${DASHBOARD_GRAPHQL_SERVER_URL}
+    command: parse-dashboard --dev
+    depends_on:
+      - parse
+networks:
+  app-network:
+    driver: bridge
